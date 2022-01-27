@@ -7,11 +7,13 @@ nav {
 nav > div {
     display: flex;
     align-items: center;
+    user-select: none;
+    cursor: pointer;
     height: 1.5em;
     padding: 0 0.2em;
     transition: background-color 0.1s;
 }
 
 nav > div:hover {
-    background-color: rgb(82, 182, 154);
+    background-color: rgb(217, 237, 146); /*99, 168, 123*/
 }
