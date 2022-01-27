@@ -1,0 +1,17 @@
+nav {
+    display: flex;
+    justify-content: flex-start;
+    background-color: rgb(153, 217, 140);
+}
+
+nav > div {
+    display: flex;
+    align-items: center;
+    height: 1.5em;
+    padding: 0 0.2em;
+    transition: background-color 0.1s;
+}
+
+nav > div:hover {
+    background-color: rgb(82, 182, 154);
+}
