@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, useRemoteArray } from "./remote"
+import { Row, useRemoteArray } from "./Remote";
 
 interface Dish extends Row {
     name: string,
