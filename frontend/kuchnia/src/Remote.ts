@@ -25,7 +25,7 @@ interface RemoteArray<T extends Row> {
 
 export function useRemoteArray<T extends Row>(url: string): RemoteArray<T> {
     const [data, setData] = React.useState<[T] | undefined>(undefined);
-    return {
+    const resource = React.useMemo((): RemoteArray<T> => ({
         data,
         fetch() {
             fetch(url)
@@ -40,7 +40,9 @@ export function useRemoteArray<T extends Row>(url: string): RemoteArray<T> {
             .then(response => response.json())
             .then(setData);
         }
-    };
+    }), [url, data]);
+    React.useEffect(() => resource.fetch(), [url]);
+    return resource;
 }
 
 // async function fetchDishes() {
