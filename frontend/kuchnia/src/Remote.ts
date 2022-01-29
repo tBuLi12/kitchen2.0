@@ -23,14 +23,15 @@ interface RemoteArray<T extends Row> {
     ): void;
 }
 
-export function useRemoteArray<T extends Row>(url: string): RemoteArray<T> {
+export function useRemoteArray<T extends Row>(url: string, transform?: (raw: any) => T): RemoteArray<T> {
     const [data, setData] = React.useState<[T] | undefined>(undefined);
     const resource = React.useMemo((): RemoteArray<T> => ({
         data,
         fetch() {
             fetch(url)
             .then(response => response.json())
-            .then(setData);
+            .then(rawRows => transform ? rawRows.map(transform) : rawRows)
+            .then(setData)
         },
         update(actionName, data) {
             fetch(url, {
@@ -38,9 +39,10 @@ export function useRemoteArray<T extends Row>(url: string): RemoteArray<T> {
                 body: JSON.stringify({actionName, data})
             })
             .then(response => response.json())
+            .then(rawRows => transform ? rawRows.map(transform) : rawRows)
             .then(setData);
         }
-    }), [url, data]);
+    }), [url, data, transform]);
     React.useEffect(() => resource.fetch(), [url]);
     return resource;
 }

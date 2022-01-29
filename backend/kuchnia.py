@@ -5,9 +5,8 @@ from flask import (
     session,
 )
 from threading import Lock
-import MySQLdb
 import datetime
-
+from database import dbConnection
 import bcrypt
 from time import time
 from string import printable
@@ -21,45 +20,14 @@ suToken = None
 suTokenLock = Lock()
 
 
-class DbConnection:
-    def __init__(self, host, user, password, dbName):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.dbName = dbName
-        self.connection = None
-
-    def __enter__(self):
-        self.connection = MySQLdb.connect(
-            self.host,
-            self.user,
-            self.password,
-            self.dbName
-        )
-        return self.connection.cursor()
-
-    def __exit__(self, type, value, traceback):
-        self.connection.close()
-
-    def commit(self):
-        self.connection.commit()
-
-
-dbConnection = DbConnection(
-            "tbuli12.mysql.pythonanywhere-services.com",
-            "tbuli12",
-            "livjmos35",
-            "tbuli12$kitchen"
-        )
-
 
 def pullDishes():
     with dbConnection as cursor:
-        cursor.execute("SELECT name, last_made FROM dishes ORDER BY last_made")
+        cursor.execute("SELECT id, name, last_made FROM dishes ORDER BY last_made")
         recipeNames = cursor.fetchall()
     return [
-        {"name": name, "last_made": last}
-        for name, last in recipeNames
+        {"name": name, "lastMade": last.strftime("%d/%m/%Y"), "id": id}
+        for id, name, last in recipeNames
     ]
 
 
