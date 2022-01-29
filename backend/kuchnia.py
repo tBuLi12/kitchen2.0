@@ -26,7 +26,7 @@ def pullDishes():
         cursor.execute("SELECT id, name, last_made FROM dishes ORDER BY last_made")
         recipeNames = cursor.fetchall()
     return [
-        {"name": name, "lastMade": last.strftime("%d/%m/%Y"), "id": id}
+        {"name": name, "lastMade": last.strftime("%m/%d/%Y"), "id": id}
         for id, name, last in recipeNames
     ]
 
