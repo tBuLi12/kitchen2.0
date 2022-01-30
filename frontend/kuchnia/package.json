@@ -2,6 +2,7 @@
   "name": "kuchnia",
   "version": "0.1.0",
   "homepage": "/kuchnia/",
+  "proxy": "http://127.0.0.1:5000/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",

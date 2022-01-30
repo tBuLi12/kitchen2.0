@@ -9,9 +9,66 @@ html {
 }
 
 body {
+  height: 100%;
   font-size: 40px;
   font-family: "Quicksand", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
+}
+
+#root, .App {
+  height: 100%;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40%;
+}
+
+svg {
+  height: 100px;
+}
+
+path {
+  stroke: rgb(217, 237, 146);
+  fill: transparent;
+  stroke-width: 5;
+  stroke-dasharray: 165 300;
+  stroke-linecap: round;
+  transform-origin: center;
+  animation: loadinglength 3s infinite ease-in-out, rotate 0.8s infinite linear;
+
+}
+
+@keyframes loadinglength {
+  0% {stroke-dasharray: 165 300;}
+  50% {stroke-dasharray: 20 300;}
+  100% {stroke-dasharray: 165 300;}
+}
+
+@keyframes rotate {
+  0% {transform: rotate(0turn);} 
+  100% {transform: rotate(1turn);} 
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0turn);
+    stroke-dasharray: 165 300;
+  }
+  25% {
+    transform: rotate(0.5turn);
+    stroke-dasharray:82.5 300;
+  } 
+  50% {
+    transform: rotate(1turn);
+    stroke-dasharray: 20 300;
+  } 
+  100% {
+    transform: rotate(2turn);
+    stroke-dasharray: 165 300;
+  } 
 }

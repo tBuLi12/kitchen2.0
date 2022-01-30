@@ -1,5 +1,7 @@
 import React from "react";
 import { Row, useRemoteArray } from "./Remote";
+import './Dishes.css';
+import { ReactComponent as Loading } from "./loading.svg";
 
 interface Dish extends Row {
     name: string,
@@ -33,7 +35,7 @@ function getDateStr(date: Date): string {
         return "Yesterday";
     }
     cmp.setDate(cmp.getDate() - 6);
-    if (date > cmp) {
+    if (date > cmp && date < new Date()) {
         return date.toLocaleDateString("en-GB", {
             weekday: "long"
         });
@@ -47,12 +49,12 @@ function getDateStr(date: Date): string {
 export default function DishList() {
     const dishes = useRemoteArray<Dish>('/dishes', fromRaw);
     if (dishes.data === undefined) {
-        return <div>Loading</div>;
+        return <div className="loading"><Loading/></div>;
     }
     return (
-        <div>
-            {dishes.data.map(dish => <div key={dish.id}>
-                {getDateStr(dish.lastMade)}: {dish.name}
+        <div className="dishes">
+            {dishes.data.map(dish => <div key={dish.id} className="dish">
+                {getDateStr(dish.lastMade)}: <span>{dish.name}</span>
                 <button onClick={() => dishes.update("done", dish.id)}>Done</button>
             </div>)}
         </div>
