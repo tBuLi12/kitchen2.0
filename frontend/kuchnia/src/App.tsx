@@ -9,7 +9,6 @@ function App() {
     <div className="App">
       <NavBar links={{
         Dishes: <DishList/>,
-        Link2: <div/>
       }} setContent={setContent}/>
       {content}
     </div>

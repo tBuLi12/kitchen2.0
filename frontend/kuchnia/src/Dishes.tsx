@@ -54,8 +54,8 @@ export default function DishList() {
     return (
         <div className="dishes">
             {dishes.data.map(dish => <div key={dish.id} className="dish">
-                {getDateStr(dish.lastMade)}: <span>{dish.name}</span>
-                <button onClick={() => dishes.update("done", dish.id)}>Done</button>
+                <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
+                {/* <button onClick={() => dishes.update("done", dish.id)}>Done</button> */}
             </div>)}
         </div>
     );
