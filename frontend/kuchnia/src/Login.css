@@ -1,0 +1,27 @@
+form {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+input:first-child {
+    margin-top: 0.6em;
+}
+
+/* form > button {
+    font-size: 0.8em;
+} */
+
+input {
+    margin: 0.3em;
+    border-radius: 0.13em;
+    height: 1.4em;
+    font-size: inherit;
+    font-family: inherit;
+    border-color: rgb(175, 175, 175);
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0.15em 0.1em rgb(217, 237, 146);
+}

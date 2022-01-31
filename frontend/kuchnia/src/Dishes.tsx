@@ -71,9 +71,9 @@ function DishElem({ dish, done }: DishProps) {
                 <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
             </div>
             {expanded ? <div className="button-box">
-                <span onClick={done} className="button">
+                <button onClick={done}>
                     Done
-                </span>
+                </button>
             </div> : null}
         </>
     )

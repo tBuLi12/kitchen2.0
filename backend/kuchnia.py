@@ -30,6 +30,11 @@ def pullDishes():
         for id, name, last in recipeNames
     ]
 
+def resetDate(id):
+    with dbConnection as cursor:
+        cursor.execute("UPDATE dishes SET last_made = sysdate() WHERE id = %s", (id,))
+        dbConnection.commit()
+
 
 # def recipeSetdate(name):
 #     with dbConnection as cursor:
@@ -44,14 +49,14 @@ def pullDishes():
 #         dbConnection.commit()
 
 
-# def authenticate(username, password):
-#     with dbConnection as cursor:
-#         cursor.execute("SELECT passhash FROM users WHERE username=%s", (username,))
-#         result = cursor.fetchall()
-#         if not result:
-#             return False
-#         passHash = result[0][0]
-#     return bcrypt.checkpw(password, passHash)
+def authenticate(username, password):
+    with dbConnection as cursor:
+        cursor.execute("SELECT passhash FROM users WHERE username=%s", (username,))
+        result = cursor.fetchone()
+        if not result:
+            return False
+        passHash = result[0]
+    return bcrypt.checkpw(password, passHash)
 
 
 # def signUp(username, password):
@@ -62,10 +67,12 @@ def pullDishes():
 
 @app.route('/dishes', methods=['GET', 'POST'])
 def dishes():
-    if request.method == 'GET':
-        return json.dumps(pullDishes())
     if request.method == 'POST':
-        return json.dumps(pullDishes())
+        body = request.get_json()["data"]
+        if body["actionName"] == "done":
+            resetDate(body["data"])
+    return json.dumps(pullDishes())
+
 
 
 # @app.route('/token', methods=['GET'])
@@ -113,19 +120,12 @@ def dishes():
 #         return redirect(url_for('signupRoute'))
 
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def loginRoute():
-#     if request.method == 'GET':
-#         return render_template('login.html', loggedin=None)
-#     if request.method == 'POST':
-#         if authenticate(request.form['username'], request.form['password']):
-#             session['username'] = request.form['username']
-#             return redirect(url_for('homeRoute'))
-#         else:
-#             flash('Invalid credentials.')
-#             return redirect(url_for('loginRoute'))
-
-
+@app.route('/login', methods=['POST'])
+def loginRoute():
+    if authenticate(request.form['username'], request.form['password']):
+        session['username'] = request.form['username']
+        return "ok"
+    return f"{request.form['username']} {request.form['password']}"
 # @app.route('/logout', methods=['GET'])
 # def logoutRoute():
 #     if 'username' in session:

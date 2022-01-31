@@ -36,6 +36,10 @@ export function useRemoteArray<T extends Row>(url: string, transform?: (raw: any
         update(actionName, data) {
             fetch(url, {
                 method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({actionName, data})
             })
             .then(response => response.json())
