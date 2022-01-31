@@ -103,6 +103,7 @@ def dishes():
 
 @app.route('/signup', methods=['POST'])
 def signupRoute():
+    # if session["username"] == "admin"
     signUp(request.form['username'], request.form['password'])
     return 'ok'
     # global suToken
@@ -126,13 +127,14 @@ def loginRoute():
     if authenticate(request.form['username'], request.form['password']):
         session['username'] = request.form['username']
         return "ok"
-    return f"{request.form['username']} {request.form['password']}"
-# @app.route('/logout', methods=['GET'])
-# def logoutRoute():
-#     if 'username' in session:
-#         flash('You have been logged out')
-#     session.pop('username', None)
-#     return redirect(url_for('loginRoute'))
+    return "Invalid credentials", 401
+
+
+@app.route('/logout', methods=['GET'])
+def logoutRoute():
+    if 'username' in session:
+        session.pop('username', None)
+    return 'ok'
 
 
 # @app.route('/recipes', methods=['GET', 'POST'])

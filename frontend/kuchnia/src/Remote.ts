@@ -51,6 +51,28 @@ export function useRemoteArray<T extends Row>(url: string, transform?: (raw: any
     return resource;
 }
 
+export async function loginOrSignup(url: string, username: string, password: string) {
+    const form = new FormData();
+    form.append('username', username);
+    form.append('password', password);
+    const response = await fetch(url, {
+        method: 'POST',
+        body: form
+    });
+    if (response.ok) {
+        return 'ok';
+    }
+    throw response;
+}
+
+export async function logout() {
+    const response = await fetch('/logout');
+    if (response.ok) {
+        return 'ok';
+    }
+    throw response;
+}
+
 // async function fetchDishes() {
 //     const response = await fetch('/dishes');
 //     if (response.ok) {

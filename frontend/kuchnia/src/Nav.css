@@ -17,3 +17,11 @@ nav > div {
 nav > div:hover {
     background-color: rgb(217, 237, 146); /*99, 168, 123*/
 }
+
+nav > .spacer {
+    flex-grow: 1;
+}
+
+nav > .spacer:hover {
+    background-color: rgb(153, 217, 140);
+}
