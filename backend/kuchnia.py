@@ -103,9 +103,10 @@ def dishes():
 
 @app.route('/signup', methods=['POST'])
 def signupRoute():
-    # if session["username"] == "admin"
-    signUp(request.form['username'], request.form['password'])
-    return 'ok'
+    if session["username"] == "admin":
+        signUp(request.form['username'], request.form['password'])
+        return 'ok'
+    return 'only admin can sign up', 401
     # global suToken
     # if request.method == 'GET':
     #     return render_template('signup.html', loggedin=None)

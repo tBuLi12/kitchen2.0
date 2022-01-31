@@ -22,7 +22,7 @@ export default function NavBar({ links, user }: NavBarProps) {
                 {name}
             </div>)}
             <div className='spacer'></div>
-            {user === 'admin' && <div onClick={() => <SignUp/>}>Sign Up</div>}
+            {user === 'admin' && <div onClick={() => dispatch({action: 'setContent', content: <SignUp/>})}>Sign Up</div>}
             {user ?
                 <div onClick={() => logout().then(() => dispatch('logout'))}>Log Out</div>
             :   <div onClick={() => dispatch({action: 'setContent', content: <LogIn/>})}>Log In</div>}
