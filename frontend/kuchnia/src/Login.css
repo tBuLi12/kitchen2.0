@@ -19,6 +19,7 @@ input {
     font-size: inherit;
     font-family: inherit;
     border-color: rgb(175, 175, 175);
+    border-style: solid;
 }
 
 input:focus {

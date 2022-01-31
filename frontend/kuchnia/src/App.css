@@ -72,3 +72,29 @@ path {
     stroke-dasharray: 165 300;
   } 
 }
+
+.popup {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup > div {
+  border-radius: 0.1em;
+  background-color: rgb(22, 138, 173);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.2em;
+  box-shadow: 0 0 0.4em 0.15em rgb(39, 39, 39);
+}
+
+.popup > div > button {
+  align-self: flex-end;
+  padding: 0em 0.3em;
+}

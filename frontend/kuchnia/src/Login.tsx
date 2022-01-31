@@ -9,7 +9,6 @@ export default function LogIn() {
 
 export function SignUp() {
     return <UsrnPassForm buttonText='Sign Up' url='/signup'/>;
-
 }
 
 interface upForm {
@@ -20,12 +19,16 @@ interface upForm {
 function UsrnPassForm({ buttonText, url }: upForm) {
     const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [infoText, setInfoText] = React.useState("");
     const dispatch = React.useContext(DispatchContext);
     return (
         <form autoComplete='off' onSubmit={function(event) {
             event.preventDefault();
             loginOrSignup(url, username, password)
-            .then(() => dispatch({action: 'login', username}));
+            .then(
+                () => url === "/login" && dispatch({action: 'login', username}),
+                res => setInfoText(`error: ${res.statusText}`)
+            );
         }}>
             <input 
                 type="text"
@@ -43,6 +46,7 @@ function UsrnPassForm({ buttonText, url }: upForm) {
                 onChange={event => setPassword(event.target.value)}
             />
             <button type="submit">{buttonText}</button>
+            {infoText}
         </form>
     )
 }

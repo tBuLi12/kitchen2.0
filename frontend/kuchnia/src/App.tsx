@@ -47,4 +47,26 @@ function App() {
     );
 }
 
+export function usePopup<T>(): [JSX.Element | null, (getElem: (confirm: (data: T) => void) => JSX.Element) => Promise<T>] {
+    const [popupElem, setPopupElem] = React.useState<JSX.Element | null>(null);
+    return [popupElem, function(getElem) {
+        return new Promise(function(resolve, reject) {
+            setPopupElem(
+                <div className='popup'>
+                    <div>
+                        <button onClick={() => {
+                            reject("closed")
+                            setPopupElem(null);
+                        }} className="close-button">X</button>
+                        {getElem(data => {
+                            resolve(data);
+                            setPopupElem(null);
+                        })}
+                    </div>
+                </div>
+            );
+        })
+    }];
+}
+
 export default App;

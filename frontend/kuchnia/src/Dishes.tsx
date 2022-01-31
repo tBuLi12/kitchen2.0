@@ -2,6 +2,7 @@ import React from "react";
 import { Row, useRemoteArray } from "./Remote";
 import './Dishes.css';
 import { ReactComponent as Loading } from "./loading.svg";
+import { usePopup } from "./App";
 
 interface Dish extends Row {
     name: string,
@@ -48,12 +49,15 @@ function getDateStr(date: Date): string {
 
 export default function DishList() {
     const dishes = useRemoteArray<Dish>('/dishes', fromRaw);
+    const [popup, show] = usePopup();
     if (dishes.data === undefined) {
         return <div className="loading"><Loading/></div>;
     }
     return (
         <div className="dishes">
+            <button onClick={() => show(confirm => <DishAdder onAdd={confirm}/>).then(name => dishes.update("add", name))}>Add</button>
             {dishes.data.map(dish => <DishElem dish={dish} done={() => dishes.update("done", dish.id)}/>)}
+            {popup}
         </div>
     );
 }
@@ -76,5 +80,25 @@ function DishElem({ dish, done }: DishProps) {
                 </button>
             </div> : null}
         </>
+    )
+}
+
+function DishAdder({ onAdd }: { onAdd: (name: string) => void }) {
+    const [name, setName] = React.useState("");
+    return (
+        <form onSubmit={function(event) {
+            event.preventDefault();
+            onAdd(name);
+        }}>
+            <input 
+                name="name"
+                value={name}
+                onChange={event => setName(event.target.value)}
+                placeholder="dish name"
+                required
+                maxLength={63}
+            />
+            <button type="submit">Add</button>
+        </form>
     )
 }
