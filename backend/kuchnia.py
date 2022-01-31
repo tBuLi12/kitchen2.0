@@ -59,11 +59,11 @@ def authenticate(username, password):
     return bcrypt.checkpw(password, passHash)
 
 
-# def signUp(username, password):
-#     passhash = bcrypt.hashpw(password, bcrypt.gensalt())
-#     with dbConnection as cursor:
-#         cursor.execute("INSERT INTO users (username, passhash) VALUES (%s, %s)", (username, passhash))
-#         dbConnection.commit()
+def signUp(username, password):
+    passhash = bcrypt.hashpw(password, bcrypt.gensalt())
+    with dbConnection as cursor:
+        cursor.execute("INSERT INTO users (username, passhash) VALUES (%s, %s)", (username, passhash))
+        dbConnection.commit()
 
 @app.route('/dishes', methods=['GET', 'POST'])
 def dishes():
@@ -101,23 +101,24 @@ def dishes():
 #     return 'false'
 
 
-# @app.route('/signup', methods=['GET', 'POST'])
-# def signupRoute():
-#     global suToken
-#     if request.method == 'GET':
-#         return render_template('signup.html', loggedin=None)
-#     if request.method == 'POST':
-#         token = request.form['token']
-#         if suToken and token == suToken[1]:
-#             if time() - suToken[0] < 60:
-#                 signUp(request.form['username'], request.form['password'])
-#                 flash('Sign up successful.')
-#                 return redirect(url_for('loginRoute'))
-#             else:
-#                 flash('token expired')
-#         else:
-#             flash('invalid token')
-#         return redirect(url_for('signupRoute'))
+@app.route('/signup', methods=['POST'])
+def signupRoute():
+    signUp(request.form['username'], request.form['password'])
+    return 'ok'
+    # global suToken
+    # if request.method == 'GET':
+    #     return render_template('signup.html', loggedin=None)
+    # if request.method == 'POST':
+    #     token = request.form['token']
+    #     if suToken and token == suToken[1]:
+    #         if time() - suToken[0] < 60:
+    #             flash('Sign up successful.')
+    #             return redirect(url_for('loginRoute'))
+    #         else:
+    #             flash('token expired')
+    #     else:
+    #         flash('invalid token')
+    #     return redirect(url_for('signupRoute'))
 
 
 @app.route('/login', methods=['POST'])

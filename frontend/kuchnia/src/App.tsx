@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import React from 'react';
 import NavBar from './Nav';
 import './App.css';
 import DishList from './Dishes';
-import LogIn from './Login';
+import LogIn, { SignUp } from './Login';
 
 function App() {
-  const [content, setContent] = useState<JSX.Element | null>(null);
+  const [content, setContent] = React.useState<JSX.Element | null>(null);
   return (
     <div className="App">
       <NavBar links={{
         Dishes: <DishList/>,
-        "Log In": <LogIn/>
+        "Log In": <LogIn/>,
+        "Sign up": <SignUp/>
       }} setContent={setContent}/>
       {content}
     </div>

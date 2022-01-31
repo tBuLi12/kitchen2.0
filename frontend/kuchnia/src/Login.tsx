@@ -9,3 +9,13 @@ export default function LogIn() {
         </form>
     )
 }
+
+export function SignUp() {
+    return (
+        <form action="/signup" method="POST" autoComplete='off'>
+            <input type="text" placeholder="username" name="username" required/>
+            <input type="password" placeholder="password" name="password" required/>
+            <button type="submit">Sign Up</button>
+        </form>
+    )
+}
