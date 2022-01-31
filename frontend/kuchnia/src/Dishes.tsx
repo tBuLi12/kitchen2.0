@@ -53,10 +53,28 @@ export default function DishList() {
     }
     return (
         <div className="dishes">
-            {dishes.data.map(dish => <div key={dish.id} className="dish">
-                <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
-                {/* <button onClick={() => dishes.update("done", dish.id)}>Done</button> */}
-            </div>)}
+            {dishes.data.map(dish => <DishElem dish={dish} done={() => dishes.update("done", dish.id)}/>)}
         </div>
     );
+}
+
+interface DishProps {
+    dish: Dish,
+    done: () => void;
+}
+
+function DishElem({ dish, done }: DishProps) {
+    const [expanded, setExpanded] = React.useState(false);
+    return (
+        <> 
+            <div key={dish.id} className="dish" onClick={() => setExpanded(prev => !prev)}>
+                <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
+            </div>
+            {expanded ? <div className="button-box">
+                <span onClick={done} className="button">
+                    Done
+                </span>
+            </div> : null}
+        </>
+    )
 }
