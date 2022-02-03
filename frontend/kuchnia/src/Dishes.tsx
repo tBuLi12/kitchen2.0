@@ -74,11 +74,11 @@ function DishElem({ dish, done }: DishProps) {
             <div key={dish.id} className="dish" onClick={() => setExpanded(prev => !prev)}>
                 <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
             </div>
-            {expanded ? <div className="button-box">
+            {expanded && <div className="button-box">
                 <button onClick={done}>
                     Done
                 </button>
-            </div> : null}
+            </div>}
         </>
     )
 }

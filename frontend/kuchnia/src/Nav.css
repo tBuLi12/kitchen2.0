@@ -20,6 +20,7 @@ nav > div:hover {
 
 nav > .spacer {
     flex-grow: 1;
+    cursor: auto;
 }
 
 nav > .spacer:hover {
