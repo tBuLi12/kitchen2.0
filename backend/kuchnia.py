@@ -6,7 +6,7 @@ from flask import (
 )
 from threading import Lock
 import datetime
-from database import DbCursor
+from database import DbCursor, init as dbInit, close as dbClose
 import bcrypt
 from time import time
 from string import printable
@@ -38,6 +38,22 @@ def addRecipe(name, user):
     with DbCursor() as cursor:
         cursor.execute("insert into dishes (name, last_made, user_id) values (%s, sysdate(), %s)", (name, user))
 
+def pullList(user):
+    with DbCursor() as cursor:
+        cursor.execute("select list_item_id, name, quantity, unit from lists where user_id = %s", (user,))
+        recipeNames = cursor.fetchall()
+    return [
+        {"name": name, "lastMade": last.strftime("%m/%d/%Y"), "id": id}
+        for id, name, last in recipeNames
+    ]
+
+def addToList(name, quantity, unit, user):
+    with DbCursor() as cursor:
+        cursor.execute("insert into lists (name, quantity, unit, user_id) values (%s, %s, %s, %s)", (name, quantity, unit, user))
+
+def toggleCheck(product):
+    with DbCursor() as cursor:
+        cursor.execute("update lists set checked = if (checked, false, true) where list_item_id = %s", (product,))
 
 
 # def recipeSetdate(name):
@@ -83,7 +99,19 @@ def dishes():
 
     return pullDishes(session['user_id'])
 
-
+@app.route('/list', methods=['GET', 'POST'])
+def lists():
+    if 'user_id' not in session:
+        return 'not logged in', 401
+    if request.method == 'POST':
+        body = request.get_json()
+        if body["actionName"] == "toggle":
+            toggleCheck(body["data"])
+        elif body["actionName"] == "add":
+            data = body["data"]
+            addToList(data["name"], data["quantity"], data["unit"], session['user_id'])
+ 
+    return pullList(session['user_id'])
 
 # @app.route('/token', methods=['GET'])
 # def getToken():
@@ -170,4 +198,6 @@ def logoutRoute():
 
 
 if __name__ == '__main__':
+    dbInit()
     app.run()
+    dbClose()
