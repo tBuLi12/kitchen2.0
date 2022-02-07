@@ -6,7 +6,7 @@ from flask import (
 )
 from threading import Lock
 import datetime
-from database import dbConnection
+from database import DbCursor
 import bcrypt
 from time import time
 from string import printable
@@ -22,7 +22,7 @@ suTokenLock = Lock()
 
 
 def pullDishes(user):
-    with dbConnection as cursor:
+    with DbCursor() as cursor:
         cursor.execute("select dish_id, name, last_made from dishes where user_id = %s order by last_made", (user,))
         recipeNames = cursor.fetchall()
     return [
@@ -31,32 +31,30 @@ def pullDishes(user):
     ]
 
 def resetDate(dish, user):
-    with dbConnection as cursor:
+    with DbCursor() as cursor:
         cursor.execute("update dishes set last_made = sysdate() where dish_id = %s and user_id = %s", (dish, user))
-        dbConnection.commit()
 
 def addRecipe(name, user):
-    with dbConnection as cursor:
+    with DbCursor() as cursor:
         cursor.execute("insert into dishes (name, last_made, user_id) values (%s, sysdate(), %s)", (name, user))
-        dbConnection.commit()
 
 
 
 # def recipeSetdate(name):
-#     with dbConnection as cursor:
+#     with DbCursor() as cursor:
 #         args = (datetime.date.today().strftime('%Y-%m-%d'), name, session['username'])
 #         cursor.execute("UPDATE recipes SET last=%s WHERE name=%s AND userid=(SELECT id FROM users WHERE username=%s)", args)
-#         dbConnection.commit()
+#         DbCursor().commit()
 
 
 # def addRecipe(name):
-#     with dbConnection as cursor:
+#     with DbCursor() as cursor:
 #         cursor.execute("INSERT INTO recipes (name, userid) VALUES (%s, (SELECT id FROM users WHERE username=%s))", (name, session['username']))
-#         dbConnection.commit()
+#         DbCursor().commit()
 
 
 def authenticate(username, password):
-    with dbConnection as cursor:
+    with DbCursor() as cursor:
         cursor.execute("select user_id, passhash from users where username=%s", (username,))
         row = cursor.fetchone()
     if row:
@@ -68,9 +66,8 @@ def authenticate(username, password):
 
 def signUp(username, password):
     passhash = bcrypt.hashpw(password, bcrypt.gensalt())
-    with dbConnection as cursor:
+    with DbCursor() as cursor:
         cursor.execute("insert into users (username, passhash) values (%s, %s)", (username, passhash))
-        dbConnection.commit()
 
 
 @app.route('/dishes', methods=['GET', 'POST'])
@@ -84,7 +81,7 @@ def dishes():
         elif body["actionName"] == "add":
             addRecipe(body["data"], session['user_id'])
 
-    return json.dumps(pullDishes(session['user_id']))
+    return pullDishes(session['user_id'])
 
 
 

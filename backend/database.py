@@ -1,36 +1,39 @@
 import mysql.connector
+from threading import Lock, Semaphore
+
+POOL_SIZE = 5
+poolLock = Lock()
+poolSemaphore = Semaphore(POOL_SIZE)
+pool = None
+
+def init():
+    with poolLock:
+        global pool
+        pool = [mysql.connector.connect(
+            "tbuli12.mysql.pythonanywhere-services.com",
+            "tbuli12",
+            "livjmos35",
+            "tbuli12$kitchen"
+        ) for i in range(POOL_SIZE)]
+
+def close():
+    with poolLock:
+        global pool
+        for c in pool:
+            c.close()
 
 
-class DbConnection:
-    def __init__(self, host, user, password, dbName):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.dbName = dbName
-        self.connection = None
-        self.cursor = None
-
+class DbCursor:
     def __enter__(self):
-        self.connection = mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
-            database=self.dbName
-        )
+        poolSemaphore.acquire()
+        with poolLock:
+            self.connection = pool.pop()
         self.cursor = self.connection.cursor()
         return self.cursor
 
     def __exit__(self, type, value, traceback):
         self.cursor.close()
-        self.connection.close()
-
-    def commit(self):
         self.connection.commit()
-
-
-dbConnection = DbConnection(
-            "tbuli12.mysql.pythonanywhere-services.com",
-            "tbuli12",
-            "livjmos35",
-            "tbuli12$kitchen"
-        )
+        with poolLock:
+            pool.append(self.connection)
+        poolSemaphore.release()
