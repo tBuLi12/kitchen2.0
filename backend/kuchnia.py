@@ -40,11 +40,11 @@ def addRecipe(name, user):
 
 def pullList(user):
     with DbCursor() as cursor:
-        cursor.execute("select list_item_id, name, quantity, unit from lists where user_id = %s", (user,))
+        cursor.execute("select list_item_id, name, quantity, unit, checked from lists where user_id = %s order by checked, name", (user,))
         recipeNames = cursor.fetchall()
     return [
-        {"name": name, "lastMade": last.strftime("%m/%d/%Y"), "id": id}
-        for id, name, last in recipeNames
+        {"name": name, "quantity": quantity, "id": id, "unit": unit, "checked": checked}
+        for id, name, quantity, unit, checked in recipeNames
     ]
 
 def addToList(name, quantity, unit, user):
@@ -97,7 +97,7 @@ def dishes():
         elif body["actionName"] == "add":
             addRecipe(body["data"], session['user_id'])
 
-    return pullDishes(session['user_id'])
+    return json.dumps(pullDishes(session['user_id']))
 
 @app.route('/list', methods=['GET', 'POST'])
 def lists():
@@ -111,7 +111,7 @@ def lists():
             data = body["data"]
             addToList(data["name"], data["quantity"], data["unit"], session['user_id'])
  
-    return pullList(session['user_id'])
+    return json.dumps(pullList(session['user_id']))
 
 # @app.route('/token', methods=['GET'])
 # def getToken():

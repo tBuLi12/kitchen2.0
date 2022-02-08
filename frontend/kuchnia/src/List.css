@@ -1,0 +1,18 @@
+.checked {
+    opacity: 0.5;
+}
+
+.list-item > span:last-child {
+    width: 16%;
+}
+
+.list-item > span:nth-child(2) {
+    text-align: right;
+    padding-right: 0.2em;
+    width: 12%;
+}
+
+.list-item > span:first-child {
+    flex-grow: 1;
+    text-align: center;
+}

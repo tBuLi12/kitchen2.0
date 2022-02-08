@@ -56,7 +56,7 @@ export default function DishList() {
     return (
         <div className="dishes">
             <button onClick={() => show(confirm => <DishAdder onAdd={confirm}/>).then(name => dishes.update("add", name))}>Add</button>
-            {dishes.data.map(dish => <DishElem dish={dish} done={() => dishes.update("done", dish.id)}/>)}
+            {dishes.data.map(dish => <DishElem key={dish.id} dish={dish} done={() => dishes.update("done", dish.id)}/>)}
             {popup}
         </div>
     );
@@ -71,7 +71,7 @@ function DishElem({ dish, done }: DishProps) {
     const [expanded, setExpanded] = React.useState(false);
     return (
         <> 
-            <div key={dish.id} className="dish" onClick={() => setExpanded(prev => !prev)}>
+            <div className="dish" onClick={() => setExpanded(prev => !prev)}>
                 <span>{getDateStr(dish.lastMade)}:</span> <span>{dish.name}</span>
             </div>
             {expanded && <div className="button-box">

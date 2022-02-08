@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface Row {
-    id: string
+    id: number
 }
 
 // interface DataObject<T extends Row> {

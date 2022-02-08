@@ -8,7 +8,7 @@ select user_id, passhash from users where username=%s
 
 insert into dishes (name, last_made, user_id) values (%s, sysdate(), %s)
 
-select list_item_id, name, quantity, unit, checked from lists where user_id = %s
+select list_item_id, name, quantity, unit, checked from lists where user_id = %s order by checked, name
 
 insert into lists (name, quantity, unit, user_id) values (%s, %s, %s, %s)
 
