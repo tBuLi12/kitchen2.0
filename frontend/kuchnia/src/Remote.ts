@@ -15,7 +15,7 @@ export interface Row {
 // }
 
 interface RemoteArray<T extends Row> {
-    data?: [T],
+    data?: T[],
     fetch(): void,
     update(
         actionName: string,
@@ -24,7 +24,8 @@ interface RemoteArray<T extends Row> {
 }
 
 export function useRemoteArray<T extends Row>(url: string, transform?: (raw: any) => T): RemoteArray<T> {
-    const [data, setData] = React.useState<[T] | undefined>(undefined);
+    const lastUpdate = React.useRef<Promise<Response>>();
+    const [data, setData] = React.useState<T[]>();
     const resource = React.useMemo((): RemoteArray<T> => ({
         data,
         fetch() {
@@ -34,20 +35,52 @@ export function useRemoteArray<T extends Row>(url: string, transform?: (raw: any
             .then(setData)
         },
         update(actionName, data) {
-            fetch(url, {
+            let request: Promise<Response>;
+            (lastUpdate.current = request = fetch(url, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({actionName, data})
+            }))
+            .then(response => {
+                if (Object.is(request, lastUpdate.current)) {
+                    response.json()
+                    .then(rawRows => transform ? rawRows.map(transform) : rawRows)
+                    .then(setData);
+                }
             })
-            .then(response => response.json())
-            .then(rawRows => transform ? rawRows.map(transform) : rawRows)
-            .then(setData);
         }
     }), [url, data, transform]);
     React.useEffect(() => resource.fetch(), [url]);
+    return resource;
+}
+
+interface MirrorArray<T extends Row> {
+    data?: T[],
+    fetch(): void,
+    update(
+        actionName: string,
+        newState?: React.SetStateAction<T[] | undefined>,
+        data?: any
+    ): void;
+}
+
+export function useMirrorArray<T extends Row>(url: string, transform?: (raw: any) => T): MirrorArray<T> {
+    const remoteArray = useRemoteArray(url, transform);
+    const [data, setData] = React.useState<T[]>();
+    React.useEffect(() => setData(remoteArray.data), [remoteArray.data]);
+    const resource = React.useMemo((): MirrorArray<T> => ({
+        data,
+        fetch() {
+            remoteArray.fetch();
+        },
+        update(actionName, newState, data) {
+            remoteArray.update(actionName, data)
+            newState !== undefined && setData(newState);
+        }
+    }), [data, remoteArray]);
     return resource;
 }
 

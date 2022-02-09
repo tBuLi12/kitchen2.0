@@ -43,7 +43,9 @@ function App() {
                 Dishes: <DishList/>,
                 List: <ShoppingList/>,
                 }} user={user}/>
-                {content}
+                <div className='content-div'>
+                    {content}
+                </div>
             </div>
         </DispatchContext.Provider>
     );

@@ -55,6 +55,9 @@ def toggleCheck(product):
     with DbCursor() as cursor:
         cursor.execute("update lists set checked = if (checked, false, true) where list_item_id = %s", (product,))
 
+def clearList(user):
+    with DbCursor() as cursor:
+        cursor.execute("delete from lists where checked = true and user_id = %s", (user,))
 
 # def recipeSetdate(name):
 #     with DbCursor() as cursor:
@@ -110,6 +113,8 @@ def lists():
         elif body["actionName"] == "add":
             data = body["data"]
             addToList(data["name"], data["quantity"], data["unit"], session['user_id'])
+        elif body["actionName"] == "clear":
+            clearList(session["user_id"])
  
     return json.dumps(pullList(session['user_id']))
 

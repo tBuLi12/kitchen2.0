@@ -1,5 +1,5 @@
 .checked {
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .list-item > span:last-child {
@@ -16,3 +16,69 @@
     flex-grow: 1;
     text-align: center;
 }
+
+.list {
+    position: relative;
+}
+
+.list > button {
+    position: absolute;
+    top: 0.15em;
+}
+
+.list > button:last-of-type {
+    width: 1.2em;
+    left: 100%;
+}
+
+.list > button:first-of-type {
+    right: 100%;
+}
+
+.list-form {
+    display: inline-flex;
+    position: relative;
+    padding-top: 0;
+    flex-direction: row;
+    justify-content: center;
+    width: 15em;
+    margin-top: 0.6em;
+    margin-bottom: 0.45em;
+}
+
+.list-form > input {
+    text-align: center;
+    margin: 0.15em;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.list-form > input:nth-child(3) {
+    width: 16%;
+    margin-right: 0;
+}
+
+.list-form > input:nth-child(2) {
+    width: 12%;
+}
+
+.list-form > input:first-child {
+    margin-left: 0;
+    width: 0;
+    flex-grow: 1;
+}
+
+.list-form > button {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin: 0;
+    margin-left: 0.3em;
+}
+
+.invalid, .invalid:focus {
+    box-shadow: 0 0 0.15em 0.1em rgb(245, 58, 58);
+}
+/* .list > form > input {
+    margin-top: 0.15em;
+} */

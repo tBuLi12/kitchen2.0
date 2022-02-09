@@ -2,10 +2,7 @@ form {
     display: flex;
     align-items: center;
     flex-direction: column;
-}
-
-input:first-child {
-    margin-top: 0.6em;
+    padding-top: 0.3em;
 }
 
 /* form > button {
