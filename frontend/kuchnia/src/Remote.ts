@@ -113,3 +113,7 @@ export async function logout() {
 //     }
 //     throw new Error("Request failed");
 // }
+
+// function Foo(): new () => Foo {
+//     this.a = 3;
+// }
