@@ -1,24 +1,24 @@
 import mysql.connector
 from threading import Lock, Semaphore
 
-POOL_SIZE = 5
+POOL_SIZE = 2
 poolLock = Lock()
 poolSemaphore = Semaphore(POOL_SIZE)
 pool = None
 
 def init():
+    global pool
     with poolLock:
-        global pool
         pool = [mysql.connector.connect(
-            "tbuli12.mysql.pythonanywhere-services.com",
-            "tbuli12",
-            "livjmos35",
-            "tbuli12$kitchen"
+            host="tbuli12.mysql.pythonanywhere-services.com",
+            user="tbuli12",
+            password="livjmos35",
+            database="tbuli12$kitchen"
         ) for i in range(POOL_SIZE)]
 
 def close():
+    global pool
     with poolLock:
-        global pool
         for c in pool:
             c.close()
 

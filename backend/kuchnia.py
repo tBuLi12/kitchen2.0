@@ -11,10 +11,12 @@ import bcrypt
 from time import time
 from string import printable
 from random import choice
-
+import atexit
 
 app = Flask(__name__)
+dbInit()
 app.secret_key = '1k09&ebq17&bd(o]=aQ!$bb'
+atexit.register(dbClose)
 
 suToken = None
 suTokenLock = Lock()
@@ -202,7 +204,7 @@ def logoutRoute():
 #         return "date set"
 
 
-if __name__ == '__main__':
-    dbInit()
-    app.run()
-    dbClose()
+# if __name__ == '__main__':
+#     dbInit()
+#     app.run()
+#     dbClose()
