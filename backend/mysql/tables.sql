@@ -1,4 +1,4 @@
-create table dishes (dish_id int primary key auto_increment, name varchar(63), last_made date, user_id int references users (user_id) on delete cascade)
+create table dishes (dish_id int primary key auto_increment, name varchar(63), last_made varchar(11), user_id int references users (user_id) on delete cascade)
 
 create table lists (list_item_id int primary key auto_increment, name varchar(63), quantity float, unit varchar(15), checked boolean default false, user_id int references users (user_id) on delete cascade)
 

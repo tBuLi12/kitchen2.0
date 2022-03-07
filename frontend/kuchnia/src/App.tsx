@@ -3,7 +3,7 @@ import NavBar from './Nav';
 import './App.css';
 import DishList from './Dishes';
 import LogIn from './Login';
-import ShoppingList from './List';
+// import ShoppingList from './List';
 
 interface AppState {
     content: JSX.Element,
@@ -40,8 +40,8 @@ function App() {
         <DispatchContext.Provider value={dispatch}>
             <div className="App">
                 <NavBar links={{
-                Dishes: <DishList/>,
-                List: <ShoppingList/>,
+                    Dishes: <DishList/>,
+                    // List: <ShoppingList/>,
                 }} user={user}/>
                 <div className='content-div'>
                     {content}

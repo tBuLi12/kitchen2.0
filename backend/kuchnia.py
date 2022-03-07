@@ -6,7 +6,7 @@ from flask import (
 )
 from threading import Lock
 import datetime
-from database import DbCursor, init as dbInit, close as dbClose
+from database import DbCursor, init as dbInit, close as dbClose, RemoteArray
 import bcrypt
 from time import time
 from string import printable
@@ -95,14 +95,11 @@ def signUp(username, password):
 def dishes():
     if 'user_id' not in session:
         return 'not logged in', 401
+    remoteArray = RemoteArray('dishes', session['user_id'], ['dish_id', 'name', 'last_made'], ['id', 'name', 'lastMade'])
     if request.method == 'POST':
-        body = request.get_json()
-        if body["actionName"] == "done":
-            resetDate(body["data"], session['user_id'])
-        elif body["actionName"] == "add":
-            addRecipe(body["data"], session['user_id'])
+        remoteArray.push(request.get_json())
 
-    return json.dumps(pullDishes(session['user_id']))
+    return json.dumps(remoteArray.fetch())
 
 @app.route('/list', methods=['GET', 'POST'])
 def lists():
