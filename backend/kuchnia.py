@@ -105,17 +105,11 @@ def dishes():
 def lists():
     if 'user_id' not in session:
         return 'not logged in', 401
+    remoteArray = RemoteArray('lists', session['user_id'], ['list_item_id', 'name', 'quantity', 'unit', 'checked'], ['id', 'name', 'quantity', 'unit', 'checked'])
     if request.method == 'POST':
-        body = request.get_json()
-        if body["actionName"] == "toggle":
-            toggleCheck(body["data"])
-        elif body["actionName"] == "add":
-            data = body["data"]
-            addToList(data["name"], data["quantity"], data["unit"], session['user_id'])
-        elif body["actionName"] == "clear":
-            clearList(session["user_id"])
+        remoteArray.push(request.get_json())
  
-    return json.dumps(pullList(session['user_id']))
+    return json.dumps(remoteArray.fetch())
 
 # @app.route('/token', methods=['GET'])
 # def getToken():

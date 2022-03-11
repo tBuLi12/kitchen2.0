@@ -6,15 +6,18 @@ poolLock = Lock()
 poolSemaphore = Semaphore(POOL_SIZE)
 pool = None
 
-def init():
-    global pool
-    with poolLock:
-        pool = [mysql.connector.connect(
+def getConnection():
+    return mysql.connector.connect(
             host="tbuli12.mysql.pythonanywhere-services.com",
             user="tbuli12",
             password="livjmos35",
             database="tbuli12$kitchen"
-        ) for i in range(POOL_SIZE)]
+        )
+
+def init():
+    global pool
+    with poolLock:
+        pool = [getConnection() for i in range(POOL_SIZE)]
 
 def close():
     global pool
@@ -28,7 +31,12 @@ class DbCursor:
         poolSemaphore.acquire()
         with poolLock:
             self.connection = pool.pop()
-        self.cursor = self.connection.cursor()
+        try:
+            self.cursor = self.connection.cursor()
+        except mysql.connector.errors.OperationalError:
+            self.connection.close()
+            self.connection = getConnection()
+            self.cursor = self.connection.cursor()
         return self.cursor
 
     def __exit__(self, type, value, traceback):

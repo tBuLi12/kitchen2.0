@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, useMirrorArray } from "./Remote";
+import { Row, useRemoteArray } from "./Remote";
 import { ReactComponent as Loading } from "./loading.svg";
 import "./List.css";
 
@@ -12,28 +12,23 @@ interface ListItem extends Row {
 
 export default function ShoppingList() {
     const [showAdder, setShowAdder] = React.useState(false);
-    const items = useMirrorArray<ListItem>("/list");
-    if (items.data === undefined) {
+    const items = useRemoteArray<ListItem>("/list", compareItems);
+    if (items.array === undefined) {
         return <div className="loading"><Loading/></div>;
     }
     return (
         <>
             <ItemAdder onAdd={function(name, quantity, unit) {
-                items.update("add", undefined, {name, quantity, unit});
+                items.add({name, quantity, unit, checked: false});
             }} visible={showAdder}/>{showAdder && <br/>}
             <div className="list">
-                {items.data.length === 0 || <button onClick={() => items.update("clear")}>Clear</button>}
+                {items.array.length === 0 || <button onClick={() => items.batchUpdate(
+                    items.array!
+                    .filter(e => e.checked)
+                    .map(e => ({action: "delete", row: e}))
+                )}>Clear</button>}
                 <button onClick={() => setShowAdder(prev => !prev)}>+</button>
-                {items.data.map((item, i) => <ItemElem key={item.id} item={item} toggle={function() {
-                    items.update("toggle", function(prev) {
-                        if (prev !== undefined) {
-                            const cp: ListItem[] = JSON.parse(JSON.stringify(prev));
-                            cp[i].checked = !cp[i].checked;
-                            cp.sort(compareItems);
-                            return cp;
-                        }
-                    }, item.id);
-                }}/>)}
+                {items.array.map((item, i) => <ItemElem key={item.id} item={item}/>)}
             </div>
         </>
     )
@@ -55,9 +50,9 @@ function compareItems(a: ListItem, b: ListItem): number {
     return 0;
 }
 
-function ItemElem({ item, toggle }: { item: ListItem, toggle: () => void }) {
+function ItemElem({ item }: { item: ListItem }) {
     return (
-        <div className={"list-item" + (item.checked ? " checked" : "")} onClick={toggle}>
+        <div className={"list-item" + (item.checked ? " checked" : "")} onClick={() => item.checked = !item.checked}>
             <span>{item.name}</span>
             <span>{item.quantity}</span>
             <span>{item.unit}</span>

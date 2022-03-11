@@ -8,6 +8,7 @@ interface RemoteArray<T extends Row> {
     array: OuterElem<T>[] | undefined
     add(row: T | Omit<T, "id">): void
     refresh(): void
+    batchUpdate(actions: OuterDataAction<T>[]): void
 }
 
 interface Elem<T extends Row> extends ElemProto<T> {
@@ -32,14 +33,23 @@ interface State<T extends Row> {
     changes: Change<T>[]
 }
 
-type Action<T extends Row> = 
-    | "lock"
+type DataAction<T extends Row> = 
     | {action: "add", row: T | Omit<T, "id">}
     | {action: "delete", row: Elem<T>}
     | {action: "update", current: Elem<T>, prop: string | symbol, value: any}
-    | {action: "setArray", array: T[]}
 
-type ordType<T extends Row> = (e1: Elem<T>, e2: Elem<T>) => number;
+type OuterDataAction<T extends Row> = 
+    | {action: "add", row: T | Omit<T, "id">}
+    | {action: "delete", row: OuterElem<T>}
+    | {action: "update", current: OuterElem<T>, prop: string | symbol, value: any}
+
+type Action<T extends Row> = 
+    | "lock"
+    | DataAction<T>
+    | {action: "setArray", array: T[]}
+    | {action: "batch", actions: DataAction<T>[]}
+
+type OrdType<T extends Row> = (e1: Elem<T>, e2: Elem<T>) => number;
 
 function getReducer<T extends Row>(dspObj: { dispatch: React.Dispatch<Action<T>>}, ordering?: (r1: T, r2: T) => number): (state: State<T>, action: Action<T>) => State<T> {
     const elem = function(this: Omit<T, "id"> | T, data: T) {
@@ -65,43 +75,46 @@ function getReducer<T extends Row>(dspObj: { dispatch: React.Dispatch<Action<T>>
             return target[prop];
         }
     });
+    function processDataAction(state: State<T> & {array: Elem<T>[]}, action: DataAction<T>): void {
+        switch (action.action) {
+            case "add":
+                if ("id" in action.row) {
+                    state.array.push(new elem(action.row));
+                    state.changes.push({action: "add", values: {...action.row}})
+                } else {
+                    state.array.push(new elem({...action.row, id: state.lastKey} as T));
+                    state.changes.push({action: "add", values: {...action.row, id: state.lastKey} as T});
+                    --state.lastKey;
+                }
+                break;
+            case "delete":
+                state.array.splice(state.array.findIndex(elem => elem.data.id === action.row.data.id), 1);
+                state.changes.push({action: "delete", id: action.row.data.id});
+                break;                
+            case "update":
+                const i = state.array.findIndex(elem => elem.data.id === action.current.data.id)
+                state.array[i] = new elem({...action.current.data, [action.prop]: action.value});
+                state.changes.push({id: action.current.data.id, action: "update", values: {[action.prop]: action.value} as Partial<T>});
+        }
+    }
     function reducer(state: State<T>, action: Action<T>): State<T> {
         if (typeof action === "object") {
-            if (state.array !== undefined) {
-                let arrCp = [...state.array];
-                switch (action.action) {
-                    case "add":
-                        if ("id" in action.row) {
-                            arrCp.push(new elem(action.row));
-                            ordering && arrCp.sort(ordering as any as ordType<T>);
-                            return {...state, array: arrCp};
-                        } else {
-                            arrCp.push(new elem({...action.row, id: state.lastKey} as T));
-                            ordering && arrCp.sort(ordering as any as ordType<T>);
-                            return {...state,
-                                array: arrCp,
-                                lastKey: state.lastKey - 1,
-                                changes: [...state.changes, {action: "add", values: {...action.row, id: state.lastKey} as T}]
-                            };
-                        }
-                    case "delete":
-                        arrCp.splice(arrCp.findIndex(elem => elem.data.id === action.row.data.id), 1);
-                        return {...state, array: arrCp, changes: [...state.changes, {action: "delete", id: action.row.data.id}]};
-                    case "update":
-                        const i = arrCp.findIndex(elem => elem.data.id === action.current.data.id)
-                        arrCp[i] = new elem({...action.current.data, [action.prop]: action.value});
-                        ordering && arrCp.sort(ordering as any as ordType<T>);
-                        return {...state, array: arrCp, changes: [...state.changes, {id: action.current.data.id, action: "update", values: {[action.prop]: action.value} as Partial<T>}]};
+            if (action.action !== "setArray") {
+                if (state.array !== undefined) {
+                    const newState = {...state, array: [...state.array], changes: [...state.changes]};
+                    if (action.action === "batch") {
+                        action.actions.forEach(a => processDataAction(newState, a));
+                    } else {
+                        processDataAction(newState, action);
+                    }
+                    ordering && newState.array.sort(ordering as any as OrdType<T>);
+                    return newState;
                 }
+                return state;
             }
-            switch(action.action) {
-                case "setArray":
-                    const arr = action.array.map(r => new elem(r));
-                    ordering && arr.sort(ordering as any as ordType<T>);
-                    return {...state, array: arr, changes: []};
-                default:
-                    return state;
-            }
+            const arr = action.array.map(r => new elem(r));
+            ordering && arr.sort(ordering as any as OrdType<T>);
+            return {...state, array: arr, changes: []};
         }
         return {...state, array: undefined};
     }    
@@ -156,6 +169,9 @@ export function useRemoteArray<T extends Row>(url: string, ordering?: (r1: T, r2
         },
         refresh() {
             refresh(url, disObj.dispatch, changes);
+        },
+        batchUpdate(actions) {
+            disObj.dispatch({action: "batch", actions: actions as any as DataAction<T>[]});
         }
     };
 }
