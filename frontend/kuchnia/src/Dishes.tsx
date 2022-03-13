@@ -48,7 +48,7 @@ export default function DishList() {
         <div className="dishes">
             <button onClick={() => show(confirm => <DishAdder onAdd={confirm}/>).then(name => dishes.add({
                 name,
-                lastMade: (new Date()).toLocaleDateString()
+                lastMade: (new Date()).toISOString().split('T')[0]
             }))}>Add</button>
             {dishes.array.map(dish => <DishElem key={dish.id} dish={dish}/>)}
             {popup}
@@ -68,7 +68,7 @@ function DishElem({ dish }: DishProps) {
                 <span>{getDateStr(new Date(dish.lastMade))}:</span> <span>{dish.name}</span>
             </div>
             {expanded && <div className="button-box">
-                <button onClick={() => dish.lastMade = (new Date()).toLocaleDateString()}>
+                <button onClick={() => dish.lastMade = (new Date()).toISOString().split('T')[0]}>
                     Done
                 </button>
             </div>}
