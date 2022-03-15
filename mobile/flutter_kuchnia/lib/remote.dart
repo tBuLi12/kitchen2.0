@@ -1,24 +1,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dishes.dart' show Dish;
 
 const String url = 'tbuli12.pythonanywhere.com';
 
-http.Client? client;
+late http.Client client = http.Client();
 String? sessionId;
 
-Future<List<Dish>> fetchDishes() async {
-  if (client == null) {
-    client = http.Client();
-    final loginRequest = http.MultipartRequest('POST', Uri.https(url, 'login'))
+Future<String> getSession() async {
+  final loginRequest = http.MultipartRequest('POST', Uri.https(url, 'login'))
     ..fields['username'] = 'bony'
     ..fields['password'] = 'niepotrzebne';
-    sessionId = (await client!.send(loginRequest)).headers['set-cookie'];
-  }
-  final response = await client!.get(Uri.https(url, 'dishes'), headers: {'Cookie': sessionId!});
-  if (response.statusCode == 200) {
-    final List<dynamic> jsonArr = jsonDecode(response.body);
-    return jsonArr.map((dish) => Dish.fromJSON(dish)).toList();
-  }
-  throw Exception('Error fetching data ${response.statusCode}');
+  return (await client.send(loginRequest)).headers['set-cookie']!;
+}
+
+Future<dynamic> get(String route) async {
+  sessionId ??= await getSession();
+  return jsonDecode(
+      (await client.get(Uri.https(url, route), headers: {'Cookie': sessionId!}))
+          .body);
+}
+
+Future<dynamic> post(String route, dynamic json) async {
+  sessionId ??= await getSession();
+  return jsonDecode((await client.post(Uri.https(url, route),
+          headers: {'Cookie': sessionId!, 'Content-Type': 'application/json'},
+          body: jsonEncode(json)))
+      .body);
 }
